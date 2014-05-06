@@ -13,8 +13,31 @@ understand.
 def parse(source):
     """Parse string representation of one *single* expression
     into the corresponding Abstract Syntax Tree."""
-
-    raise NotImplementedError("DIY")
+    source = remove_comments(source)
+    source = source.strip()
+    print "source: %s" % source
+    if source[0] == '(':
+        pos = find_matching_paren(source)
+        if pos != len(source) - 1:
+            raise LispError("Expected EOF")
+        return [parse(exp) for exp in split_exps(source[1:pos])]
+    else:
+        # source is an atom
+        atom, _ = first_expression(source)
+        print "atom: %s" % atom
+        if atom == '#t':
+            return True
+        elif atom == '#f':
+            return False
+        elif atom[0] == "'":
+            return ['quote', parse(atom[1:])]
+        else:
+            try:
+                num = int(atom)
+            except ValueError:
+                return atom
+            else:
+                return num
 
 ##
 ## Below are a few useful utility functions. These should come in handy when 
