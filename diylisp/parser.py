@@ -15,7 +15,7 @@ def parse(source):
     into the corresponding Abstract Syntax Tree."""
     source = remove_comments(source)
     source = source.strip()
-    print "source: %s" % source
+    # print "source: %s" % source
     if source[0] == '(':
         pos = find_matching_paren(source)
         if pos != len(source) - 1:
@@ -24,7 +24,7 @@ def parse(source):
     else:
         # source is an atom
         atom, _ = first_expression(source)
-        print "atom: %s" % atom
+        # print "atom: %s" % atom
         if atom == '#t':
             return True
         elif atom == '#f':

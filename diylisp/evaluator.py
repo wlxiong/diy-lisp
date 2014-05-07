@@ -16,4 +16,33 @@ in a day, after all.)
 
 def evaluate(ast, env):
     """Evaluate an Abstract Syntax Tree in the specified environment."""
-    raise NotImplementedError("DIY")
+    print ast
+    try:
+        if is_atom(ast):
+            return ast
+        op = ast[0]
+        if op == "quote":
+            return ast[1]
+        elif op == "atom":
+            return is_atom(evaluate(ast[1], env))
+        elif op == "eq":
+            arg1, arg2 = evaluate(ast[1], env), evaluate(ast[2], env)
+            if not is_atom(arg1) or not is_atom(arg2) or arg1 != arg2:
+                return False
+            return True
+        elif op == "+":
+            return evaluate(ast[1], env) + evaluate(ast[2], env)
+        elif op == "-":
+            return evaluate(ast[1], env) - evaluate(ast[2], env)
+        elif op == "*":
+            return evaluate(ast[1], env) * evaluate(ast[2], env)
+        elif op == "/":
+            return evaluate(ast[1], env) / evaluate(ast[2], env)
+        elif op == "mod":
+            return evaluate(ast[1], env) % evaluate(ast[2], env)
+        elif op == ">":
+            return evaluate(ast[1], env) > evaluate(ast[2], env)
+        else:
+            raise LispError("Unknow operator")
+    except Exception as e:
+        raise LispError("%s" % e)
