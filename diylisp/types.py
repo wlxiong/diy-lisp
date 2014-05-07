@@ -6,6 +6,7 @@ This module holds some types we'll have use for along the way.
 It's your job to implement the Closure and Environment types.
 The LispError class you can have for free :)
 """
+from copy import deepcopy
 
 class LispError(Exception): 
     """General lisp error class."""
@@ -25,10 +26,17 @@ class Environment:
         self.variables = variables if variables else {}
 
     def lookup(self, symbol):
-        raise NotImplementedError("DIY")
+        try:
+            return self.variables[symbol]
+        except KeyError:
+            raise LispError("Cannot find variable '%s'" % symbol)
 
     def extend(self, variables):
-        raise NotImplementedError("DIY")
+        new_variables = deepcopy(self.variables)
+        new_variables.update(variables)
+        return Environment(new_variables)
 
     def set(self, symbol, value):
-        raise NotImplementedError("DIY")
+        if symbol in self.variables:
+            raise LispError("already defined")
+        self.variables[symbol] = value

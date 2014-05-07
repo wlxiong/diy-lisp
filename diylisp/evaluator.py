@@ -16,8 +16,9 @@ in a day, after all.)
 
 def evaluate(ast, env):
     """Evaluate an Abstract Syntax Tree in the specified environment."""
-    print ast
     try:
+        if is_symbol(ast):
+            return env.lookup(ast)
         if is_atom(ast):
             return ast
         op = ast[0]
@@ -46,6 +47,14 @@ def evaluate(ast, env):
             if evaluate(ast[1], env) == True:
                 return evaluate(ast[2], env)
             return evaluate(ast[3], env)
+        elif op == "define":
+            try:
+                symbol, value = ast[1:]
+                if not is_symbol(symbol):
+                    raise LispError("non-symbol")
+                env.set(symbol, evaluate(value, env))
+            except ValueError:
+                raise LispError("Wrong number of arguments")
         else:
             raise LispError("Unknow operator '%s'" % op)
     except Exception as e:
