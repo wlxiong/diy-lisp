@@ -43,6 +43,6 @@ def evaluate(ast, env):
         elif op == ">":
             return evaluate(ast[1], env) > evaluate(ast[2], env)
         else:
-            raise LispError("Unknow operator")
+            raise LispError("Unknow operator '%s'" % op)
     except Exception as e:
         raise LispError("%s" % e)
