@@ -42,6 +42,10 @@ def evaluate(ast, env):
             return evaluate(ast[1], env) % evaluate(ast[2], env)
         elif op == ">":
             return evaluate(ast[1], env) > evaluate(ast[2], env)
+        elif op == "if":
+            if evaluate(ast[1], env) == True:
+                return evaluate(ast[2], env)
+            return evaluate(ast[3], env)
         else:
             raise LispError("Unknow operator '%s'" % op)
     except Exception as e:
