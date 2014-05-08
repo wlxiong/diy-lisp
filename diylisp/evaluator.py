@@ -22,6 +22,29 @@ def apply(closure, arguments, env):
     extended_env = closure.env.extend(zip(closure.params, evaluated_args))
     return evaluate(closure.body, extended_env)
 
+def list_manip(ast, env):
+    """All the list manipulation can be implemented using lambda function.
+    """
+    op = ast[0]
+    if op == 'cons':
+        try:
+            head, tail = ast[1:]
+        except ValueError:
+            raise LispError("cons needs exactly two arguments")
+        return [evaluate(head, env)] + evaluate(tail, env)
+    elif op == 'head':
+        if len(ast[1:]) > 1:
+            raise LispError("head needs exactly one argument")
+        return evaluate(ast[1], env)[0]
+    elif op == 'tail':
+        if len(ast[1:]) > 1:
+            raise LispError("tail needs exactly one argument")
+        return evaluate(ast[1], env)[1:]
+    elif op == 'empty':
+        if len(ast[1:]) > 1:
+            raise LispError("empty needs exactly one argument")
+        return len(evaluate(ast[1], env)) == 0
+
 def evaluate(ast, env):
     """Evaluate an Abstract Syntax Tree in the specified environment."""
     try:
@@ -79,6 +102,8 @@ def evaluate(ast, env):
             except ValueError:
                 arguments = []
             return apply(op, arguments, env)
+        elif op in {'cons', 'head', 'tail', 'empty'}:
+            return list_manip(ast, env)
         else:
             try:
                 arguments = ast[1:]
