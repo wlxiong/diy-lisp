@@ -15,7 +15,7 @@ class LispError(Exception):
 class Closure:
     
     def __init__(self, env, params, body):
-        raise NotImplementedError("DIY")
+        self.env, self.params, self.body = env, params, body
 
     def __str__(self):
         return "<closure/%d>" % len(self.params)

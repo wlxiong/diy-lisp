@@ -14,12 +14,20 @@ making your work a bit easier. (We're supposed to get through this thing
 in a day, after all.)
 """
 
+def apply(closure, arguments, env):
+    evaluated_args = [evaluate(arg, env) for arg in arguments]
+    if len(closure.params) != len(evaluated_args):
+        raise LispError("wrong number of arguments, expected %d got %d" % \
+                        (len(closure.params), len(evaluated_args)))
+    extended_env = closure.env.extend(zip(closure.params, evaluated_args))
+    return evaluate(closure.body, extended_env)
+
 def evaluate(ast, env):
     """Evaluate an Abstract Syntax Tree in the specified environment."""
     try:
         if is_symbol(ast):
             return env.lookup(ast)
-        if is_atom(ast):
+        if is_integer(ast) or is_boolean(ast):
             return ast
         op = ast[0]
         if op == "quote":
@@ -50,12 +58,35 @@ def evaluate(ast, env):
         elif op == "define":
             try:
                 symbol, value = ast[1:]
-                if not is_symbol(symbol):
-                    raise LispError("non-symbol")
-                env.set(symbol, evaluate(value, env))
             except ValueError:
-                raise LispError("Wrong number of arguments")
+                raise LispError("Wrong number of arguments for 'define'")
+            if not is_symbol(symbol):
+                raise LispError("non-symbol")
+            env.set(symbol, evaluate(value, env))
+        elif op == "lambda":
+            try:
+                params, body = ast[1:]
+            except ValueError:
+                raise LispError("Wrong number of arguments for 'lambda'")
+            if not is_list(params):
+                raise LispError("params is not a list")
+            # if not is_list(body):
+            #     raise LispError("body is not a list")
+            return Closure(env, params, body)
+        elif is_closure(op):
+            try:
+                arguments = ast[1:]
+            except ValueError:
+                arguments = []
+            return apply(op, arguments, env)
         else:
-            raise LispError("Unknow operator '%s'" % op)
+            try:
+                arguments = ast[1:]
+            except ValueError:
+                arguments = []
+            func = evaluate(op, env)
+            if not is_closure(func):
+                raise LispError("not a function")
+            return evaluate([func] + arguments, env)
     except Exception as e:
         raise LispError("%s" % e)
