@@ -96,6 +96,8 @@ def evaluate(ast, env):
             # if not is_list(body):
             #     raise LispError("body is not a list")
             return Closure(env, params, body)
+        elif is_list(op):
+            return evaluate([evaluate(op, env)] + ast[1:], env)
         elif is_closure(op):
             try:
                 arguments = ast[1:]
